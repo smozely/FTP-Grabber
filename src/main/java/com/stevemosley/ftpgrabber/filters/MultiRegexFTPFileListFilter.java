@@ -2,8 +2,6 @@ package com.stevemosley.ftpgrabber.filters;
 
 import com.google.common.collect.ImmutableList;
 import org.apache.commons.net.ftp.FTPFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.integration.file.filters.AbstractFileListFilter;
 
 import java.util.List;
@@ -13,13 +11,10 @@ import java.util.List;
  */
 public class MultiRegexFTPFileListFilter extends AbstractFileListFilter<FTPFile> {
 
-    private static final Logger LOG = LoggerFactory.getLogger(MultiRegexFTPFileListFilter.class);
-
     private final List<String> regexs;
 
     public MultiRegexFTPFileListFilter(List<String> regexs) {
         this.regexs = ImmutableList.copyOf(regexs);
-        LOG.info("{}", regexs);
     }
 
     @Override

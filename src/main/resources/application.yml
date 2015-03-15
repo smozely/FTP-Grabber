@@ -1,0 +1,9 @@
+# This is a sample application properties file with blank value to show what needs to be set.
+# Create a real one and store it outside the application.
+ftp:
+  host:
+  user:
+  password:
+
+  remote.dir:
+  local.dir:

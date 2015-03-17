@@ -3,4 +3,4 @@
 
 target/
 
-application.yml
+application*.yml

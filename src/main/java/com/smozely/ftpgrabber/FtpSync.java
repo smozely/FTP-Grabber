@@ -1,5 +1,7 @@
 package com.smozely.ftpgrabber;
 
+import com.smozely.ftpgrabber.filters.FileFilter;
+import com.smozely.ftpgrabber.notifiers.FileSyncNotifier;
 import org.apache.commons.net.ftp.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +13,8 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
@@ -19,27 +23,24 @@ public class FtpSync {
 
     private static final Logger log = LoggerFactory.getLogger(FtpSync.class);
 
-    private final String host;
-
-    private final String username;
-
-    private final String password;
-
-    private final String fromDir;
+    private final FtpConfig config;
 
     private final File toDir;
 
-    @Autowired
-    public FtpSync(@Value("${ftp.host}") String host, @Value("${ftp.user}") String username, @Value("${ftp.password}") String password, @Value("${ftp.remote.dir}") String fromDir, @Value("${ftp.local.dir}") String toDir) {
-        this.host = host;
-        this.username = username;
-        this.password = password;
-        this.fromDir = fromDir;
-        this.toDir = new File(toDir);
+    private final List<FileFilter> filters;
 
+    private final List<FileSyncNotifier> notifiers;
+
+    @Autowired
+    public FtpSync(FtpConfig config, @Value("${ftp.local.dir}") String toDir,
+                   List<FileFilter> filters, List<FileSyncNotifier> notifiers) {
+        this.config = config;
+        this.toDir = new File(toDir);
         if (!this.toDir.exists()) {
             this.toDir.mkdirs();
         }
+        this.filters = filters;
+        this.notifiers = notifiers;
     }
 
     public void run() {
@@ -47,25 +48,25 @@ public class FtpSync {
         FTPClient client = new FTPClient();
 
         try {
-            client.connect(host);
+            client.connect(config.host);
 
             int replyCode = client.getReplyCode();
             if (!FTPReply.isPositiveCompletion(replyCode)) {
                 client.disconnect();
-                log.error("Failed to connect to {}", host);
+                log.error("Failed to connect to {}", config.host);
                 return;
             } else {
-                log.info("Connected to {}", host);
+                log.info("Connected to {}", config.host);
             }
 
-            boolean loggedIn = client.login(username, password);
+            boolean loggedIn = client.login(config.username, config.password);
             if (!loggedIn) {
-                log.error("Failed to login to {}, with user {}", host, username);
+                log.error("Failed to login to {}, with user {}", config.host, config.username);
                 return;
             }
 
             client.setFileType(FTP.BINARY_FILE_TYPE);
-            client.changeWorkingDirectory(fromDir);
+            client.changeWorkingDirectory(config.fromDir);
 
             log.info("Connected and Logged in Starting file processing");
             processFolder(client, toDir);
@@ -101,7 +102,14 @@ public class FtpSync {
                     processFolder(client, nextFolder);
                     client.changeToParentDirectory();
                 } else {
-                    copyFileToLocal(client, outFolder, file);
+                    // TODO Filter should get full path, not just name
+                    // String fileName = outFile.getPath().substring(toDir.getPath().length() + 1);
+                    if (filters.stream().allMatch(filter -> filter.test(file.getName()))) {
+                        copyFileToLocal(client, outFolder, file);
+                        notifiers.forEach(notifier -> notifier.synced(file.getName()));
+                    } else {
+                        log.info("Filtered [{}]", file.getName());
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -110,7 +118,6 @@ public class FtpSync {
     }
 
     private void copyFileToLocal(FTPClient client, File currentDir, FTPFile file) throws IOException {
-
         File outFile = new File(currentDir, file.getName());
         if (!outFile.exists()) {
             log.info("About to download [{}] with Size [{}]", file.getName(), file.getSize());

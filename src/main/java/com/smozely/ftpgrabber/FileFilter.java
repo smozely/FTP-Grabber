@@ -1,4 +1,4 @@
-package com.smozely.ftpgrabber.filters;
+package com.smozely.ftpgrabber;
 
 /**
  * Interface to define Filters, used to determine if files should be synced or not.

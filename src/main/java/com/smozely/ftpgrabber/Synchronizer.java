@@ -1,7 +1,7 @@
 package com.smozely.ftpgrabber;
 
-import com.smozely.ftpgrabber.filters.FileFilter;
-import com.smozely.ftpgrabber.notifiers.FileSyncNotifier;
+import com.smozely.ftpgrabber.ftp.FtpSourceWrapper;
+import com.smozely.ftpgrabber.ftp.FtpWrapperException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ public class Synchronizer {
 
     private static final Logger log = LoggerFactory.getLogger(Synchronizer.class);
 
-    private final FtpWrapper clientWrapper;
+    private final FtpSourceWrapper clientWrapper;
 
     private final File toDir;
 
@@ -25,7 +25,7 @@ public class Synchronizer {
     private final List<FileSyncNotifier> notifiers;
 
     @Autowired
-    public Synchronizer(FtpWrapper clientWrapper, @Value("${ftp.local.dir}") String toDir,
+    public Synchronizer(FtpSourceWrapper clientWrapper, @Value("${ftp.local.dir}") String toDir,
                         List<FileFilter> filters, List<FileSyncNotifier> notifiers) {
         this.clientWrapper = clientWrapper;
         this.toDir = new File(toDir);

@@ -1,5 +1,6 @@
-package com.smozely.ftpgrabber;
+package com.smozely.ftpgrabber.ftp;
 
+import com.smozely.ftpgrabber.FtpConnectionConfig;
 import org.apache.commons.net.ftp.FTP;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPFile;
@@ -19,19 +20,22 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class hides the complexity of talking to FTP Server libraries behind a simple 2 method interface.
+ */
 @Component
-public class FtpWrapper {
+public class FtpSourceWrapper {
 
-    private static final Logger log = LoggerFactory.getLogger(FtpWrapper.class);
+    private static final Logger log = LoggerFactory.getLogger(FtpSourceWrapper.class);
 
     private static final String TEMP_FILE_EXTN = ".writing";
 
-    private final FtpConfig config;
+    private final FtpConnectionConfig config;
 
     private FTPClient client;
 
     @Autowired
-    public FtpWrapper(FtpConfig config) {
+    public FtpSourceWrapper(FtpConnectionConfig config) {
         this.config = config;
     }
 

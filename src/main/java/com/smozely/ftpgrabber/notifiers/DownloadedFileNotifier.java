@@ -1,6 +1,7 @@
 package com.smozely.ftpgrabber.notifiers;
 
-import com.smozely.ftpgrabber.DownloadedFileStore;
+import com.smozely.ftpgrabber.FileSyncNotifier;
+import com.smozely.ftpgrabber.store.DownloadedFileStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

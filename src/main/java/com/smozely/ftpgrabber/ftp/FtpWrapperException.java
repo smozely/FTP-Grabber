@@ -1,4 +1,4 @@
-package com.smozely.ftpgrabber;
+package com.smozely.ftpgrabber.ftp;
 
 public class FtpWrapperException extends RuntimeException {
     public FtpWrapperException(String message) {

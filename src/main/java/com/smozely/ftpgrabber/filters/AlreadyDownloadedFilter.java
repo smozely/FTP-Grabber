@@ -1,6 +1,7 @@
 package com.smozely.ftpgrabber.filters;
 
-import com.smozely.ftpgrabber.DownloadedFileStore;
+import com.smozely.ftpgrabber.FileFilter;
+import com.smozely.ftpgrabber.store.DownloadedFileStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

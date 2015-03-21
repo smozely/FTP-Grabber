@@ -1,4 +1,4 @@
-package com.smozely.ftpgrabber.notifiers;
+package com.smozely.ftpgrabber;
 
 /**
  * Interface to define Notifiers, used to tell other components that files have been synced.

@@ -20,15 +20,14 @@ public class Runner {
     private Synchronizer synchronizer;
 
     public static void main(String... args) {
-        Runner thisRunner = SpringApplication.run(Runner.class, args).getBean(Runner.class);
-        thisRunner.syncAndProcessFiles();
+        Runner runner = SpringApplication.run(Runner.class, args).getBean(Runner.class);
+        runner.syncFiles();
 
     }
 
     @Scheduled(cron = "0 0 * * * *")
-    public void syncAndProcessFiles() {
+    public synchronized void syncFiles() {
         synchronizer.run();
-        // TODO Process
     }
 
 
